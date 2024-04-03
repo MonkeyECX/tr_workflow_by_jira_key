@@ -1,0 +1,22 @@
+name: 'Jira - Track Build Projects'
+description: 'Find projects in Github Organization by Jira Project Key and track them'
+inputs:
+  github_token:
+    description: 'Github Token'
+    required: true
+  commit_message:
+    description: 'Github commit with Jira Project Key'
+    required: true
+  workflow_id:
+    description: 'Github workflow name'
+    required: true
+  actual_repository:
+    description: 'Github repository name'
+    required: true
+outputs:
+  message:
+    description: 'The output message'
+runs:
+  using: node20
+  main: dist/index.js
+  post: dist/index.js
