@@ -5,6 +5,7 @@ import {Inputs} from './interfaces';
 export function showInputs(inps: Inputs): void {
 
   core.info(`\
+[INFO] TrigerWorkflow: ${inps.TriggerWorkflow}  
 [INFO] WorkflowID: ${inps.WorkflowID}
 [INFO] CommitMessage: ${inps.CommitMessage}
 [INFO] ActualRepository: ${inps.ActualRepository}
@@ -31,7 +32,8 @@ export function getInputs(): Inputs {
     GithubToken: core.getInput('github_token'),
     CommitMessage: core.getInput('commit_message'),
     WorkflowID: core.getInput('workflow_id'),
-    ActualRepository: core.getInput('actual_repository')
+    ActualRepository: core.getInput('actual_repository'),
+    TriggerWorkflow: isBoolean(core.getInput('trigger_workflow')),
   };
 
   return inps;

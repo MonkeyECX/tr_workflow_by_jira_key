@@ -3,6 +3,7 @@ export interface Inputs {
   readonly CommitMessage: string;
   readonly WorkflowID: string;
   readonly ActualRepository: string;
+  readonly TriggerWorkflow: boolean;
 }
 
 export interface CmdResult {

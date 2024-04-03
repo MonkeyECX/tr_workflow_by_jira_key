@@ -36,12 +36,16 @@ export async function run(): Promise<void> {
       const repoName = orgRepo[1];
 
       const default_branch = await branch(inps.GithubToken, orgName, repoName);
-      const trigger_pipeline = await dispatch(inps.GithubToken, orgName, repoName, inps.WorkflowID, default_branch, {});
-      console.log(trigger_pipeline);
+      if (inps.TriggerWorkflow) 
+        await dispatch(inps.GithubToken, orgName, repoName, inps.WorkflowID, default_branch, {});
     };
-
-    core.info(`Deployment of projects ${repositories.join(', ')} was triggered successfully!`);
-    core.setOutput('jira_build_output', `Deployment of projects ${repositories.join(', ')} was triggered successfully!`);
+    if(inps.TriggerWorkflow) {
+      core.info(`Deployment of projects ${repositories.join(', ')} was triggered successfully!`);
+      core.setOutput('jira_build_output', `Deployment of projects ${repositories.join(', ')} was triggered successfully!`);
+    } else {
+      core.info(`The projects ${repositories.join(', ')} are required to implement the ticket!`);
+      core.setOutput('jira_build_output', `The projects ${repositories.join(', ')} are required to implement the ticket!`);
+    }
   } catch (error) {
     if (error instanceof Error) {
       throw new Error(error.message);

@@ -13,6 +13,9 @@ inputs:
   actual_repository:
     description: 'Github repository name'
     required: true
+  trigger_workflow:
+    description: 'Trigger workflow'
+    required: true
 outputs:
   message:
     description: 'The output message'
