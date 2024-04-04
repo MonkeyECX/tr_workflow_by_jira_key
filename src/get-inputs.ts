@@ -7,7 +7,7 @@ export function showInputs(inps: Inputs): void {
   core.info(`\
 [INFO] TrigerWorkflow: ${inps.TriggerWorkflow}  
 [INFO] WorkflowID: ${inps.WorkflowID}
-[INFO] CommitMessage: ${inps.CommitMessage}
+[INFO] CommitSHA: ${inps.CommitSHA}
 [INFO] ActualRepository: ${inps.ActualRepository}
 `);
 }
@@ -30,7 +30,7 @@ export function getInputs(): Inputs {
 
   const inps: Inputs = {
     GithubToken: core.getInput('github_token'),
-    CommitMessage: core.getInput('commit_message'),
+    CommitSHA: core.getInput('commit_sha'),
     WorkflowID: core.getInput('workflow_id'),
     ActualRepository: core.getInput('actual_repository'),
     TriggerWorkflow: isBoolean(core.getInput('trigger_workflow')),

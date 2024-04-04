@@ -4,8 +4,8 @@ inputs:
   github_token:
     description: 'Github Token'
     required: true
-  commit_message:
-    description: 'Github commit with Jira Project Key'
+  commit_sha:
+    description: 'Github commit sha'
     required: true
   workflow_id:
     description: 'Github workflow name'

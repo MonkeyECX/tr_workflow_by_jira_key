@@ -16,7 +16,7 @@ export async function run(): Promise<void> {
     showInputs(inps);
     core.endGroup();
 
-    const repositoriesAll = await commits(inps.GithubToken, inps.CommitMessage, inps.ActualRepository);
+    const repositoriesAll = await commits(inps.GithubToken, inps.CommitSHA, inps.ActualRepository);
 
     if (!repositoriesAll) {
       core.warning('No repos found');
@@ -26,7 +26,7 @@ export async function run(): Promise<void> {
     const repositories = repositoriesAll.filter(repo => repo !== inps.ActualRepository);
 
     if (repositories.length === 0) {
-      core.warning(`No others projects found for ${inps.CommitMessage} key`);
+      core.warning(`No others projects found for ${inps.CommitSHA} key`);
       return;
     }
 
@@ -34,10 +34,12 @@ export async function run(): Promise<void> {
       const orgRepo = repo.split('/');
       const orgName = orgRepo[0];
       const repoName = orgRepo[1];
-
-      const default_branch = await branch(inps.GithubToken, orgName, repoName);
-      if (inps.TriggerWorkflow) 
+      console.log(orgName, repoName)
+      
+      if (inps.TriggerWorkflow) {
+        const default_branch = await branch(inps.GithubToken, orgName, repoName);
         await dispatch(inps.GithubToken, orgName, repoName, inps.WorkflowID, default_branch, {});
+      }
     };
     if(inps.TriggerWorkflow) {
       core.info(`Deployment of projects ${repositories.join(', ')} was triggered successfully!`);

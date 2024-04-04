@@ -1,6 +1,6 @@
 export interface Inputs {
   readonly GithubToken: string;
-  readonly CommitMessage: string;
+  readonly CommitSHA: string;
   readonly WorkflowID: string;
   readonly ActualRepository: string;
   readonly TriggerWorkflow: boolean;
