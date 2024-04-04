@@ -9,7 +9,7 @@ inputs:
     required: true
   workflow_id:
     description: 'Github workflow name'
-    required: true
+    required: false
   actual_repository:
     description: 'Github repository name'
     required: true
