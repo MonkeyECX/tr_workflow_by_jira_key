@@ -45174,69 +45174,173 @@ var core = __nccwpck_require__(2186);
 var dist_node = __nccwpck_require__(7467);
 ;// CONCATENATED MODULE: ./src/commits.ts
 
-async function commits(token, searchStr, org) {
-    const issueIdRegEx = /([a-zA-Z0-9]+-[0-9]+)/g;
-    const octokit = new dist_node.Octokit({ auth: token });
-    const match = searchStr.match(issueIdRegEx);
-    const commits = [];
-    if (!match) {
-        console.log(`String does not contain issueKeys`);
-        return;
-    }
-    let page = 1;
-    while (true) {
-        const results = await octokit.request("GET /search/commits", {
-            q: `${match} org:${org.split('/')[0]}`,
-            per_page: 100,
-            page: page
+
+async function getCommitTitle(octokit, owner, repo, sha) {
+    try {
+        const commit = await octokit.request("GET /repos/{owner}/{repo}/commits?sha={sha}", {
+            owner: owner,
+            repo: repo,
+            sha: sha,
+            per_page: 1
         });
-        if (results.data.items.length === 0)
-            break;
-        commits.push(...results.data.items);
-        page++;
+        if (commit.data.length === 0) {
+            core.info(`No commits found for ${sha}`);
+            return;
+        }
+        return commit.data[0].commit.message;
     }
-    if (commits.length === 0) {
-        console.log(`No commits found for ${match}`);
-        return;
+    catch (error) {
+        if (error instanceof Error) {
+            throw new Error(error.message);
+        }
+        else {
+            throw new Error('unexpected error');
+        }
     }
-    let issueKeys = [];
-    for (const commit of commits) {
-        issueKeys.push(commit.repository.full_name);
+}
+async function getCommits(octokit, match, org) {
+    try {
+        let page = 1;
+        const commits = [];
+        while (true) {
+            const results = await octokit.request("GET /search/commits", {
+                q: `${match} org:${org.split('/')[0]}`,
+                per_page: 100,
+                page: page
+            });
+            if (results.data.items.length === 0)
+                break;
+            commits.push(...results.data.items);
+            page++;
+        }
+        return commits;
     }
-    const removeDups = (arr) => {
-        return [...new Set(arr)];
-    };
-    return removeDups(issueKeys);
+    catch (error) {
+        if (error instanceof Error) {
+            throw new Error(error.message);
+        }
+        else {
+            throw new Error('unexpected error');
+        }
+    }
+}
+async function getIssuesAndPullRequests(octokit, match, org) {
+    try {
+        let page = 1;
+        const issuesAndPullRequests = [];
+        while (true) {
+            const results = await octokit.request("GET /search/issues", {
+                q: `${match} org:${org.split('/')[0]}`,
+                per_page: 100,
+                page: page
+            });
+            if (results.data.items.length === 0)
+                break;
+            issuesAndPullRequests.push(...results.data.items);
+            page++;
+        }
+        return issuesAndPullRequests;
+    }
+    catch (error) {
+        if (error instanceof Error) {
+            throw new Error(error.message);
+        }
+        else {
+            throw new Error('unexpected error');
+        }
+    }
+}
+async function commits(token, sha, org) {
+    try {
+        const issueIdRegEx = /([a-zA-Z0-9]+-[0-9]+)/g;
+        const octokit = new dist_node.Octokit({ auth: token });
+        const orgRepo = org.split('/');
+        const orgName = orgRepo[0];
+        const repoName = orgRepo[1];
+        const commitDetails = await getCommitTitle(octokit, orgName, repoName, sha);
+        const match = commitDetails.match(issueIdRegEx);
+        if (!match) {
+            core.warning(`String does not contain issueKeys`);
+            return;
+        }
+        const commits = await getCommits(octokit, match, org);
+        const issuesAndPullRequests = await getIssuesAndPullRequests(octokit, match, org);
+        if (commits.length === 0 && issuesAndPullRequests.length === 0) {
+            core.warning(`No repository found for ${match}`);
+            return;
+        }
+        let issueKeys = [];
+        for (const commit of commits) {
+            issueKeys.push(commit.repository.full_name);
+        }
+        for (const issue of issuesAndPullRequests) {
+            issueKeys.push(issue.repository_url.replace('https://api.github.com/repos/', ''));
+        }
+        const removeDups = (arr) => {
+            return [...new Set(arr)];
+        };
+        return removeDups(issueKeys);
+    }
+    catch (error) {
+        if (error instanceof Error) {
+            throw new Error(error.message);
+        }
+        else {
+            throw new Error('unexpected error');
+        }
+    }
 }
 
 ;// CONCATENATED MODULE: ./src/dispatch.ts
 
 async function dispatch(token, owner, repo, workflow_id, ref, inputs) {
-    const octokit = new dist_node.Octokit({ auth: token });
-    return await octokit.request('POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches', {
-        owner: owner,
-        repo: repo,
-        workflow_id: workflow_id,
-        ref: ref,
-        inputs: inputs,
-        headers: {
-            'X-GitHub-Api-Version': '2022-11-28'
+    try {
+        const octokit = new dist_node.Octokit({ auth: token });
+        return await octokit.request('POST /repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches', {
+            owner: owner,
+            repo: repo,
+            workflow_id: workflow_id,
+            ref: ref,
+            inputs: inputs,
+            headers: {
+                'X-GitHub-Api-Version': '2022-11-28'
+            }
+        });
+    }
+    catch (error) {
+        if (error instanceof Error) {
+            throw new Error(error.message);
         }
-    });
+        else {
+            throw new Error('unexpected error');
+        }
+    }
 }
 
 ;// CONCATENATED MODULE: ./src/branch.ts
 
 async function branch(token, owner, repo) {
-    const octokit = new dist_node.Octokit({ auth: token });
-    const repository = await octokit.request('GET /repos/{owner}/{repo}', {
-        owner: owner,
-        repo: repo,
-        headers: {
-            'X-GitHub-Api-Version': '2022-11-28'
+    try {
+        const octokit = new dist_node.Octokit({ auth: token });
+        const repository = await octokit.request('GET /repos/{owner}/{repo}', {
+            owner: owner,
+            repo: repo,
+            headers: {
+                'X-GitHub-Api-Version': '2022-11-28',
+                'accept': 'application/vnd.github.v3+json'
+            }
+        });
+        console.log(repository.data);
+        return repository.data.default_branch;
+    }
+    catch (error) {
+        if (error instanceof Error) {
+            throw new Error(error.message);
         }
-    });
-    return repository.data.default_branch;
+        else {
+            throw new Error('unexpected error');
+        }
+    }
 }
 
 ;// CONCATENATED MODULE: ./src/get-inputs.ts
@@ -45245,7 +45349,7 @@ function showInputs(inps) {
     core.info(`\
 [INFO] TrigerWorkflow: ${inps.TriggerWorkflow}  
 [INFO] WorkflowID: ${inps.WorkflowID}
-[INFO] CommitMessage: ${inps.CommitMessage}
+[INFO] CommitSHA: ${inps.CommitSHA}
 [INFO] ActualRepository: ${inps.ActualRepository}
 `);
 }
@@ -45265,7 +45369,7 @@ function getInputs() {
     }
     const inps = {
         GithubToken: core.getInput('github_token'),
-        CommitMessage: core.getInput('commit_message'),
+        CommitSHA: core.getInput('commit_sha'),
         WorkflowID: core.getInput('workflow_id'),
         ActualRepository: core.getInput('actual_repository'),
         TriggerWorkflow: isBoolean(core.getInput('trigger_workflow')),
@@ -45287,23 +45391,25 @@ async function run() {
         core.startGroup('Dump inputs');
         showInputs(inps);
         core.endGroup();
-        const repositoriesAll = await commits(inps.GithubToken, inps.CommitMessage, inps.ActualRepository);
+        const repositoriesAll = await commits(inps.GithubToken, inps.CommitSHA, inps.ActualRepository);
         if (!repositoriesAll) {
             core.warning('No repos found');
             return;
         }
         const repositories = repositoriesAll.filter(repo => repo !== inps.ActualRepository);
         if (repositories.length === 0) {
-            core.warning(`No others projects found for ${inps.CommitMessage} key`);
+            core.warning(`No others projects found for ${inps.CommitSHA} key`);
             return;
         }
         for (const repo of repositories) {
             const orgRepo = repo.split('/');
             const orgName = orgRepo[0];
             const repoName = orgRepo[1];
-            const default_branch = await branch(inps.GithubToken, orgName, repoName);
-            if (inps.TriggerWorkflow)
+            console.log(orgName, repoName);
+            if (inps.TriggerWorkflow) {
+                const default_branch = await branch(inps.GithubToken, orgName, repoName);
                 await dispatch(inps.GithubToken, orgName, repoName, inps.WorkflowID, default_branch, {});
+            }
         }
         ;
         if (inps.TriggerWorkflow) {
