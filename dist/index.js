@@ -45414,11 +45414,11 @@ async function run() {
         ;
         if (inps.TriggerWorkflow) {
             core.info(`Deployment of projects ${repositories.join(', ')} was triggered successfully!`);
-            core.setOutput('jira_build_output', `Deployment of projects ${repositories.join(', ')} was triggered successfully!`);
+            core.setOutput('message', `Deployment of projects ${repositories.join(', ')} was triggered successfully!`);
         }
         else {
             core.info(`The projects ${repositories.join(', ')} are required to implement the ticket!`);
-            core.setOutput('jira_build_output', `The projects ${repositories.join(', ')} are required to implement the ticket!`);
+            core.setOutput('message', `The projects ${repositories.join(', ')} are required to implement the ticket!`);
         }
     }
     catch (error) {
