@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "build": "ncc build src/main.ts",
+    "build": "ncc build src/index.ts",
     "build:types": "tsc src/async-function.ts -t es5 --declaration --allowJs --emitDeclarationOnly --outDir types",
     "format:check": "prettier --check src __test__",
     "format:write": "prettier --write src __test__",
