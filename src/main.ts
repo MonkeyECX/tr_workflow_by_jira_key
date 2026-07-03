@@ -9,7 +9,7 @@ const issueIdRegEx = /([a-zA-Z0-9]+-[0-9]+)/g ;
 
 export async function run(): Promise<void> {
   try {
-    core.info('[INFO] Usage https://github.com/MonkeyECX/jira_builds#readme');
+    core.info('[INFO] Usage https://github.com/MonkeyECX/jira-linked-workflow-dispatcher#readme');
 
     const inps: Inputs = getInputs();
     core.startGroup('Dump inputs');

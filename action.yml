@@ -1,5 +1,5 @@
-name: 'Jira - Track Build Projects'
-description: 'Find projects in Github Organization by Jira Project Key and track them'
+name: 'Jira Linked Workflow Dispatcher'
+description: 'Find repositories in a GitHub organization by Jira key and optionally dispatch workflows'
 inputs:
   github_token:
     description: 'Github Token'

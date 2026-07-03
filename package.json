@@ -1,7 +1,7 @@
 {
-  "name": "tr_workflow_by_jira_key",
+  "name": "jira-linked-workflow-dispatcher",
   "version": "1.0.0",
-  "description": "",
+  "description": "GitHub Action that finds Jira-linked repositories and optionally dispatches workflows",
   "main": "dist/index.js",
   "scripts": {
     "build": "ncc build src/index.ts",

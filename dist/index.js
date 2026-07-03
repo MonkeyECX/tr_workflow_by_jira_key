@@ -45393,7 +45393,7 @@ function getInputs() {
 const issueIdRegEx = /([a-zA-Z0-9]+-[0-9]+)/g;
 async function run() {
     try {
-        core.info('[INFO] Usage https://github.com/MonkeyECX/jira_builds#readme');
+        core.info('[INFO] Usage https://github.com/MonkeyECX/jira-linked-workflow-dispatcher#readme');
         const inps = getInputs();
         core.startGroup('Dump inputs');
         showInputs(inps);
