@@ -4,6 +4,11 @@ import * as core from '@actions/core';
 const GITHUB_SEARCH_PER_PAGE = 100;
 const GITHUB_SEARCH_MAX_RESULTS = 1000;
 const GITHUB_SEARCH_MAX_PAGES = GITHUB_SEARCH_MAX_RESULTS / GITHUB_SEARCH_PER_PAGE;
+const ISSUE_KEY_REGEX = /\b[A-Z][A-Z0-9]+-[0-9]+\b/g;
+
+export function extractIssueKeys(message: string | undefined) {
+  return message?.match(ISSUE_KEY_REGEX) || undefined;
+}
 
 async function getCommitTitle(octokit: Octokit, owner: string, repo: string, sha: string) {
   try{
@@ -27,7 +32,7 @@ async function getCommitTitle(octokit: Octokit, owner: string, repo: string, sha
   }
 } 
 
-export async function getCommits(octokit: Octokit, match: string, org: string) {
+export async function getCommits(octokit: Octokit, match: string | string[], org: string) {
   try {
     let page = 1;
     const commits = [];
@@ -51,7 +56,7 @@ export async function getCommits(octokit: Octokit, match: string, org: string) {
   }
 }
 
-export async function getIssuesAndPullRequests(octokit: Octokit, match: string, org: string) {
+export async function getIssuesAndPullRequests(octokit: Octokit, match: string | string[], org: string) {
   try {
     let page = 1;
     const issuesAndPullRequests = [];
@@ -82,8 +87,6 @@ export async function commits(
   org: string,
 ) {
   try {
-    const issueIdRegEx = /([a-zA-Z0-9]+-[0-9]+)/g
-
     const octokit = new Octokit({ auth: token});
 
     const orgRepo = org.split('/');
@@ -92,7 +95,7 @@ export async function commits(
 
     const commitDetails = await getCommitTitle(octokit, orgName, repoName, sha);
 
-    const match = commitDetails.match(issueIdRegEx);
+    const match = extractIssueKeys(commitDetails);
 
     if (!match) {
       core.warning(`String does not contain issueKeys`);
