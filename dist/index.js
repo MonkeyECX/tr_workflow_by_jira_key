@@ -45179,6 +45179,10 @@ var dist_node = __nccwpck_require__(2373);
 const GITHUB_SEARCH_PER_PAGE = 100;
 const GITHUB_SEARCH_MAX_RESULTS = 1000;
 const GITHUB_SEARCH_MAX_PAGES = GITHUB_SEARCH_MAX_RESULTS / GITHUB_SEARCH_PER_PAGE;
+const ISSUE_KEY_REGEX = /\b[A-Z][A-Z0-9]+-[0-9]+\b/g;
+function extractIssueKeys(message) {
+    return (message === null || message === void 0 ? void 0 : message.match(ISSUE_KEY_REGEX)) || undefined;
+}
 async function getCommitTitle(octokit, owner, repo, sha) {
     try {
         const commit = await octokit.request("GET /repos/{owner}/{repo}/commits?sha={sha}", {
@@ -45256,13 +45260,12 @@ async function getIssuesAndPullRequests(octokit, match, org) {
 }
 async function commits(token, sha, org) {
     try {
-        const issueIdRegEx = /([a-zA-Z0-9]+-[0-9]+)/g;
         const octokit = new dist_node.Octokit({ auth: token });
         const orgRepo = org.split('/');
         const orgName = orgRepo[0];
         const repoName = orgRepo[1];
         const commitDetails = await getCommitTitle(octokit, orgName, repoName, sha);
-        const match = commitDetails.match(issueIdRegEx);
+        const match = extractIssueKeys(commitDetails);
         if (!match) {
             core.warning(`String does not contain issueKeys`);
             return;
