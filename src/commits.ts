@@ -1,6 +1,10 @@
 import { Octokit } from "octokit";
 import * as core from '@actions/core';
 
+const GITHUB_SEARCH_PER_PAGE = 100;
+const GITHUB_SEARCH_MAX_RESULTS = 1000;
+const GITHUB_SEARCH_MAX_PAGES = GITHUB_SEARCH_MAX_RESULTS / GITHUB_SEARCH_PER_PAGE;
+
 async function getCommitTitle(octokit: Octokit, owner: string, repo: string, sha: string) {
   try{
     const commit = await octokit.request("GET /repos/{owner}/{repo}/commits?sha={sha}", {
@@ -23,14 +27,14 @@ async function getCommitTitle(octokit: Octokit, owner: string, repo: string, sha
   }
 } 
 
-async function getCommits(octokit: Octokit, match: string, org: string) {
+export async function getCommits(octokit: Octokit, match: string, org: string) {
   try {
     let page = 1;
     const commits = [];
-    while (true) {
+    while (page <= GITHUB_SEARCH_MAX_PAGES) {
       const results = await octokit.request("GET /search/commits", {
         q: `${match} org:${org.split('/')[0]}`,
-        per_page: 100,
+        per_page: GITHUB_SEARCH_PER_PAGE,
         page: page
       });
       if (results.data.items.length === 0) break;
@@ -47,14 +51,14 @@ async function getCommits(octokit: Octokit, match: string, org: string) {
   }
 }
 
-async function getIssuesAndPullRequests(octokit: Octokit, match: string, org: string) {
+export async function getIssuesAndPullRequests(octokit: Octokit, match: string, org: string) {
   try {
     let page = 1;
     const issuesAndPullRequests = [];
-    while (true) {
+    while (page <= GITHUB_SEARCH_MAX_PAGES) {
       const results = await octokit.request("GET /search/issues", {
         q: `${match} org:${org.split('/')[0]}`,
-        per_page: 100,
+        per_page: GITHUB_SEARCH_PER_PAGE,
         page: page
       });
       if (results.data.items.length === 0) break;
